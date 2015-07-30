@@ -1,3 +1,4 @@
+/*global jQuery:false */
 JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
   getDefault: function() {
     return $extend({},this.schema["default"] || {});
@@ -596,8 +597,24 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
     this.adding_property = false;
   },
   toggleAddProperty: function() {
-    if(this.adding_property) this.hideAddProperty();
-    else this.showAddProperty();
+    if(this.adding_property){ 
+		this.hideAddProperty();
+	}else{
+		this.showAddProperty();
+		// Add automatic close if click outside
+		var that = this;
+		if(typeof(jQuery) !== 'undefined'){ // Only if jquery is supported
+			//jQuery(document).unbind('click.jsoneditorautocloseproperty').bind('click.jsoneditorautocloseproperty', function(event) { // we would need a unique id for this button but it's too heavy
+			jQuery(document).bind('click.jsoneditorautocloseproperty', function(event) {
+				var protectElement = jQuery(that.addproperty_button).parent();
+				if(!jQuery(event.target).closest(protectElement).length && jQuery(event.target).closest('body').length) {
+					if(jQuery(protectElement).is(":visible")) {
+						that.hideAddProperty();
+					}
+				}     
+			});
+		}
+	}
   },
   removeObjectProperty: function(property) {
     if(this.editors[property]) {
